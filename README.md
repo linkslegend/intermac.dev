@@ -1,36 +1,48 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# intermac
 
-## Getting Started
+**Where precision meets imagination.**
 
-First, run the development server:
+[intermac](https://intermac.de) is a software studio based in Germany, building focused products at the intersection of AI and professional workflows. We believe technology should serve depth, not distraction.
+
+## Our Products
+
+### [Psynex](https://psynex.de) — AI Documentation for Psychotherapists
+AI-powered documentation platform for psychotherapists in the DACH region. Live session transcription, ICD-10/11 recognition, KBV-compliant report generation, and evidence-based citations — built to remove the documentation burden from clinical practice.
+
+→ [psynex.de](https://psynex.de) · [psynex.io](https://psynex.io)
+
+### [Mocha](https://mocha.de) — Testimonial Collection & Display Platform
+Multi-tenant platform for collecting, managing, and displaying customer testimonials. Video and text testimonials, embeddable widget, Stripe-powered billing — turn customer trust into your most powerful growth lever.
+
+→ [mocha.de](https://mocha.de)
+
+### [Curadat](https://curadat.de) — AI Documentation for All Medical Specialties *(Coming Soon)*
+Real-time transcription and structured medical documentation for all medical specialties. Multilingual, browser-based, DSGVO-compliant — designed for general practitioners and specialists alike.
+
+→ [curadat.de](https://curadat.de)
+
+### [GetSEO](https://getseo.de) — SEO Market Intelligence *(Coming Soon)*
+Keyword rank tracking, competitor monitoring, content gap analysis, and an AI-powered content engine — all from one dashboard. Data-driven SEO for teams that ship.
+
+→ [getseo.de](https://getseo.de)
+
+## Tech Stack
+
+- [Next.js 15](https://nextjs.org) App Router
+- [TypeScript](https://www.typescriptlang.org) (strict mode)
+- [Tailwind CSS](https://tailwindcss.com)
+- [Framer Motion](https://www.framer.com/motion)
+- Deployed on [Hetzner](https://www.hetzner.com) via [Ploi](https://ploi.io)
+
+## Development
 
 ```bash
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [http://localhost:3000](http://localhost:3000) to view the site.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## License
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
-
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+© 2026 intermac. All rights reserved.
