@@ -2,7 +2,7 @@
 
 **Where precision meets imagination.**
 
-[intermac](https://intermac.de) is a software studio based in Germany, building focused products at the intersection of AI and professional workflows. We believe technology should serve depth, not distraction.
+[intermac](https://intermac.dev) is a software studio, building focused products at the intersection of AI and professional workflows. We believe technology should serve depth, not distraction.
 
 ## Our Products
 
