@@ -1,6 +1,6 @@
 "use client";
 
-import { Brain, Star, Stethoscope, BarChart3, type LucideIcon } from "lucide-react";
+import { Brain, Star, Stethoscope, BarChart3, Link as LinkIcon, type LucideIcon } from "lucide-react";
 import { FadeUp } from "./fade-up";
 
 interface Feature {
@@ -35,7 +35,6 @@ const PRODUCTS: Product[] = [
       { text: "AI Analysis" },
       { text: "Multilingual (DE, EN)" },
       { text: "Browser-based, no installation" },
-      
     ],
     Icon: Brain,
     accentClass: "card-amber",
@@ -97,7 +96,27 @@ const PRODUCTS: Product[] = [
     href: "https://getseo.de",
     comingSoon: true,
   },
+  {
+    name: "TecLinkz",
+    tagline: "AI-powered backlink automation for startups",
+    description:
+      "Paste your URL, and TecLinkz builds your company profile, then creates profiles and posts across 30+ platforms — Crunchbase, Medium, Product Hunt, and more — with human review before every submission.",
+    features: [
+      { text: "AI site analysis & profile builder" },
+      { text: "30+ platform automation" },
+      { text: "Human-in-the-loop review" },
+      { text: "Browser agent submissions" },
+    ],
+    Icon: LinkIcon,
+    accentClass: "card-purple",
+    iconBg: "rgba(168, 85, 247, 0.1)",
+    iconColor: "rgba(168, 85, 247, 0.7)",
+    comingSoon: true,
+  },
 ];
+
+const LIVE_PRODUCTS = PRODUCTS.filter((p) => !p.comingSoon);
+const SOON_PRODUCTS = PRODUCTS.filter((p) => p.comingSoon);
 
 function ProductCard({
   product,
@@ -204,10 +223,21 @@ export function Products() {
           </p>
         </FadeUp>
 
-        {/* 1-col mobile → 2-col md+ → 2x2 on lg+ */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {PRODUCTS.map((product, i) => (
+        {/* Live products: 1-col mobile → 2-col md+ */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+          {LIVE_PRODUCTS.map((product, i) => (
             <ProductCard key={product.name} product={product} index={i} />
+          ))}
+        </div>
+
+        {/* Coming soon: 1-col mobile → 2-col md → 3-col lg */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {SOON_PRODUCTS.map((product, i) => (
+            <ProductCard
+              key={product.name}
+              product={product}
+              index={LIVE_PRODUCTS.length + i}
+            />
           ))}
         </div>
       </div>

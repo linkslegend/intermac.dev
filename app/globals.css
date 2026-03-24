@@ -134,7 +134,22 @@ body {
     0 28px 60px rgba(0, 0, 0, 0.45);
 }
 
+.card-purple {
+  box-shadow:
+    inset 0 1px 1px rgba(255, 255, 255, 0.08),
+    inset 0 0 80px rgba(168, 85, 247, 0.05);
+  transition: transform 0.35s ease, box-shadow 0.35s ease;
+}
+.card-purple:hover {
+  transform: translateY(-4px);
+  box-shadow:
+    inset 0 1px 1px rgba(255, 255, 255, 0.1),
+    inset 0 0 80px rgba(168, 85, 247, 0.12),
+    0 28px 60px rgba(0, 0, 0, 0.35);
+}
+
 /* ── Journal card hover ───────────────────────────────── */
+
 .card-journal {
   transition: transform 0.3s ease, box-shadow 0.3s ease;
 }

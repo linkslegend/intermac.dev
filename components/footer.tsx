@@ -9,6 +9,7 @@ export function Footer() {
       external: true,
       muted: true,
     },
+    { label: "TecLinkz", href: "#", external: false, muted: true },
     { label: "Impressum", href: "/impressum", external: false },
     { label: "Datenschutz", href: "/datenschutz", external: false },
   ];
