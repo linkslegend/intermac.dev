@@ -6,16 +6,44 @@ date: "2026-03-10"
 published: true
 ---
 
-When we started building Psynex, the transcription problem seemed straightforward: record the therapy session, send audio to a speech model, get text back. In practice, the gap between "good enough for a meeting recap" and "accurate enough for a medical record" turned out to be one of the more technically interesting problems we've worked on. The solution we landed on — what we call dual-pass transcription — emerged from a month of failed experiments with single-model pipelines.
+When we started building Psynex, the transcription problem seemed straightforward: record the therapy session, send audio to a model, get text back. It took about a week of testing to understand why that framing was wrong, and a few more weeks to land on an architecture that actually works. What we call dual-pass transcription — using two different OpenAI models for two different jobs — emerged from a simple insight: the requirements for a live display and the requirements for a medical record are not the same, and trying to satisfy both with a single inference call forces you to make trade-offs that hurt you in both directions.
 
-The core insight is that speed and accuracy are in tension at the model level, and the right answer is to stop trying to resolve that tension in a single inference call. The first pass runs a small, fast model optimized for latency. It produces a rough transcript in near real-time, which gets displayed to the therapist as they're speaking. This keeps the UI feeling alive and responsive. The second pass runs a larger, more capable model over the completed audio segment — typically a few seconds behind live — and corrects the first-pass output. The result is a transcript that reads cleanly even though the underlying pipeline is doing two rounds of work.
+## What we tried first
 
-## The German medical vocabulary problem
+The obvious first attempt was to use `gpt-4o-transcribe` for everything. The model is excellent — it handles accented German, cross-talk, and domain-specific vocabulary far better than anything we'd tested before. The problem was latency. A therapy session doesn't pause while you're waiting for a transcription response. If the display lags more than a couple of seconds behind speech, therapists lose the thread of what the model is actually showing them. In testing, anything over roughly two seconds of delay created enough cognitive friction that therapists stopped looking at the screen. At that point the live display has no value.
 
-Standard speech models are trained predominantly on English, with German as a secondary target. That's fine for everyday speech, but medical German — particularly the vocabulary used in psychotherapy — is a different register entirely. Terms like *Somatisierungsstörung*, *Affektregulation*, or *therapeutische Allianz* appear frequently in clinical notes and almost never in the training corpora that general-purpose models see. This produces confident, fluent-sounding transcription errors: words that sound plausible in context but are clinically wrong.
+The obvious fix was to stream. But streaming `gpt-4o-transcribe` on short audio chunks surfaces a different problem: the model needs context to transcribe accurately. Medical German is dense with compound nouns and domain-specific terms that are genuinely ambiguous without surrounding context. *Behandlungsplan* sounds like several other things. *Gesprächspsychotherapie* gets mangled if the model hasn't heard enough of the surrounding sentence. When you stream in small chunks, you're asking the model to make decisions without the context it needs to make them well. The result is confident-sounding errors — fluent transcription that is clinically wrong.
 
-Our solution was a two-part post-processing layer. The first part is a curated terminology dictionary built from actual anonymized clinical notes, applied as a constrained decoding hint during the second-pass inference. The second part is a lightweight classifier that flags segments where the model's confidence score dropped below a threshold, prompting the therapist to review before signing off on the document. Humans in the loop aren't a failure mode — they're the design.
+## The two-pass approach
 
-## Latency as a product constraint
+The architecture we landed on splits the two jobs cleanly.
 
-The biggest engineering challenge wasn't accuracy — it was making the latency invisible. Therapists told us in testing that any visible delay between speech and on-screen text created cognitive friction that broke their focus. We tuned the first-pass model specifically for sub-800ms response time on CPU-only inference, which meant accepting a higher word error rate on the live display. The psychological effect of a fast, imperfect preview followed by a quiet correction turned out to be far preferable to a slower, accurate display. Perception matters as much as measurement.
+Every 15 seconds of audio goes to `gpt-4o-mini-transcribe`. Mini is fast enough that the live display stays close to real time. It's also good enough for its actual job, which is not to produce the final record — it's to give the therapist a readable, roughly-accurate view of what's being said during the session. Minor errors in the live display don't matter. What matters is that the therapist can follow the transcript without breaking focus.
+
+At the end of the session, the full audio goes to `gpt-4o-transcribe` in a single call. The full session — typically 50 minutes — gives the model the complete context it needs. It sees the whole conversation, can resolve ambiguities that were unclear mid-session, and produces a transcript that's accurate enough to become part of the patient record. This final pass replaces the draft that was built up from the 15-second chunks.
+
+The key insight is that the final-pass model doesn't have to work in real time. It runs after the session ends, while the therapist is wrapping up with the patient or writing their own notes. By the time they sit down to review the transcript, the 4o pass is already done.
+
+## Custom vocabulary
+
+The other piece that made this work for medical German is custom vocabulary injection. Therapists and clinics use terminology that general-purpose models don't encounter often enough to transcribe reliably. Terms specific to a therapy modality, medication names, or a clinic's internal shorthand for certain diagnoses — these trip up even a good model when it hasn't seen them in training.
+
+We let therapists add their own terms to a custom vocabulary list, and we include those terms in the prompt for both the 15-second mini pass and the final 4o pass. A simple system message addition:
+
+```
+The following terms may appear in this session and should be transcribed exactly as written: Schematherapie, EMDR, Mentalisierungsbasierte Therapie, [...]
+```
+
+This is low-tech but it works well. The model uses the hint to break ties when a term is acoustically ambiguous, and it avoids the hallucinated near-misses that caused problems in early testing. The custom list is per-therapist and builds up over time — each therapist effectively fine-tunes their own prompt through normal use.
+
+## What the UX looks like
+
+During the session, the therapist sees the draft transcript building in real time from the mini chunks. The display is deliberately styled to look like a working draft — no clean typography, a subtle visual indicator that this is a live view. After the session ends and the 4o pass completes, the final transcript is presented as a separate document: formatted, ready to review, with a diff overlay that highlights any significant corrections the final model made relative to the draft.
+
+That diff view turned out to be more useful than we expected. Therapists started using it not just to check accuracy but to notice patterns in where mini was consistently wrong — which usually pointed to vocabulary terms they needed to add to their custom list. The correction feedback loop ended up becoming a feature in itself.
+
+## What's still hard
+
+The 15-second chunking interval is a compromise. Shorter chunks mean more responsive display but more context-free mini inferences. Longer chunks give mini more context but introduce lag. We've experimented with voice-activity detection to chunk on natural pauses rather than fixed intervals, which helps at the boundaries, but introduces its own edge cases when sessions have long silences or when two people are speaking close together.
+
+The other open problem is multi-speaker attribution. Right now the transcript is a single stream of text. For sessions with couples or group therapy, knowing who said what is important clinical information. Speaker diarization is solvable, but integrating it cleanly with the two-pass pipeline — and presenting it in a way that's useful without being cluttered — is still something we're working through.
