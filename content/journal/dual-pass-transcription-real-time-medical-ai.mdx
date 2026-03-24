@@ -1,0 +1,21 @@
+---
+title: "Dual-pass transcription: how we handle real-time medical AI"
+excerpt: "Why we run two AI models in sequence — one for speed, one for accuracy — and what we learned about German medical terminology along the way."
+category: "ENGINEERING"
+date: "2026-03-10"
+published: true
+---
+
+When we started building Psynex, the transcription problem seemed straightforward: record the therapy session, send audio to a speech model, get text back. In practice, the gap between "good enough for a meeting recap" and "accurate enough for a medical record" turned out to be one of the more technically interesting problems we've worked on. The solution we landed on — what we call dual-pass transcription — emerged from a month of failed experiments with single-model pipelines.
+
+The core insight is that speed and accuracy are in tension at the model level, and the right answer is to stop trying to resolve that tension in a single inference call. The first pass runs a small, fast model optimized for latency. It produces a rough transcript in near real-time, which gets displayed to the therapist as they're speaking. This keeps the UI feeling alive and responsive. The second pass runs a larger, more capable model over the completed audio segment — typically a few seconds behind live — and corrects the first-pass output. The result is a transcript that reads cleanly even though the underlying pipeline is doing two rounds of work.
+
+## The German medical vocabulary problem
+
+Standard speech models are trained predominantly on English, with German as a secondary target. That's fine for everyday speech, but medical German — particularly the vocabulary used in psychotherapy — is a different register entirely. Terms like *Somatisierungsstörung*, *Affektregulation*, or *therapeutische Allianz* appear frequently in clinical notes and almost never in the training corpora that general-purpose models see. This produces confident, fluent-sounding transcription errors: words that sound plausible in context but are clinically wrong.
+
+Our solution was a two-part post-processing layer. The first part is a curated terminology dictionary built from actual anonymized clinical notes, applied as a constrained decoding hint during the second-pass inference. The second part is a lightweight classifier that flags segments where the model's confidence score dropped below a threshold, prompting the therapist to review before signing off on the document. Humans in the loop aren't a failure mode — they're the design.
+
+## Latency as a product constraint
+
+The biggest engineering challenge wasn't accuracy — it was making the latency invisible. Therapists told us in testing that any visible delay between speech and on-screen text created cognitive friction that broke their focus. We tuned the first-pass model specifically for sub-800ms response time on CPU-only inference, which meant accepting a higher word error rate on the live display. The psychological effect of a fast, imperfect preview followed by a quiet correction turned out to be far preferable to a slower, accurate display. Perception matters as much as measurement.

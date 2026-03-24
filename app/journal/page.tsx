@@ -61,7 +61,7 @@ export default function JournalPage() {
                   </p>
 
                   <p className="text-xs text-muted-foreground mt-auto pt-4 border-t border-white/5">
-                    {post.date}
+                    {post.date} · {post.readingTime}
                   </p>
                 </article>
               </Link>

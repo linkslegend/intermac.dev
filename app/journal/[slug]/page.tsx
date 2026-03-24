@@ -3,15 +3,19 @@ import { notFound } from "next/navigation";
 import Link from "next/link";
 import { Navbar } from "@/components/navbar";
 import { Footer } from "@/components/footer";
-import { getAllPosts, getPostBySlug, CATEGORY_COLORS } from "@/lib/journal";
+import { getAllSlugs, getPostBySlug, CATEGORY_COLORS } from "@/lib/journal";
+import { YouTube } from "@/components/mdx/youtube";
+import { Tweet } from "@/components/mdx/tweet";
 
 interface Props {
   params: Promise<{ slug: string }>;
 }
 
-export async function generateStaticParams() {
-  return getAllPosts().map((post) => ({ slug: post.slug }));
+export function generateStaticParams() {
+  return getAllSlugs().map((slug) => ({ slug }));
 }
+
+export const dynamicParams = false;
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
@@ -23,10 +27,18 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   };
 }
 
+const mdxComponents = { YouTube, Tweet };
+
 export default async function PostPage({ params }: Props) {
   const { slug } = await params;
   const post = getPostBySlug(slug);
   if (!post) notFound();
+
+  // Dynamic import of compiled MDX
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const { default: PostContent } = (await import(
+    `@/content/journal/${slug}.mdx`
+  )) as { default: React.ComponentType<{ components?: Record<string, unknown> }> };
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -52,6 +64,10 @@ export default async function PostPage({ params }: Props) {
             </span>
             <span className="text-xs text-white/20">·</span>
             <span className="text-xs text-muted-foreground">{post.date}</span>
+            <span className="text-xs text-white/20">·</span>
+            <span className="text-xs text-muted-foreground">
+              {post.readingTime}
+            </span>
           </div>
 
           {/* Title */}
@@ -66,10 +82,9 @@ export default async function PostPage({ params }: Props) {
           <div className="border-t border-white/8 mb-12" />
 
           {/* Post body */}
-          <div
-            className="prose-journal"
-            dangerouslySetInnerHTML={{ __html: post.content }}
-          />
+          <div className="prose-journal">
+            <PostContent components={mdxComponents} />
+          </div>
         </div>
       </main>
 

@@ -4,8 +4,11 @@ import { JournalPreview } from "@/components/journal-preview";
 import { Philosophy } from "@/components/philosophy";
 import { Contact } from "@/components/contact";
 import { Footer } from "@/components/footer";
+import { getAllPosts } from "@/lib/journal";
 
 export default function Home() {
+  const previewPosts = getAllPosts().slice(0, 3);
+
   return (
     <main>
       <Hero />
@@ -20,7 +23,7 @@ export default function Home() {
       />
 
       <Products />
-      <JournalPreview />
+      <JournalPreview posts={previewPosts} />
       <Philosophy />
       <Contact />
       <Footer />

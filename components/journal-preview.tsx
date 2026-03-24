@@ -2,7 +2,8 @@
 
 import Link from "next/link";
 import { FadeUp } from "./fade-up";
-import { getAllPosts, CATEGORY_COLORS, type JournalPost } from "@/lib/journal";
+import { CATEGORY_COLORS } from "@/lib/journal-constants";
+import type { JournalPost } from "@/lib/journal";
 
 function JournalCard({
   post,
@@ -40,9 +41,9 @@ function JournalCard({
             {post.excerpt}
           </p>
 
-          {/* Date */}
+          {/* Date + reading time */}
           <p className="text-xs text-muted-foreground mt-auto pt-2 border-t border-white/5">
-            {post.date}
+            {post.date} · {post.readingTime}
           </p>
         </article>
       </Link>
@@ -50,9 +51,7 @@ function JournalCard({
   );
 }
 
-export function JournalPreview() {
-  const posts = getAllPosts().slice(0, 3);
-
+export function JournalPreview({ posts }: { posts: JournalPost[] }) {
   return (
     <section
       id="journal"

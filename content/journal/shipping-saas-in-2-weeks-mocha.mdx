@@ -1,0 +1,21 @@
+---
+title: "Shipping a SaaS in 2 weeks: lessons from building Mocha"
+excerpt: "How we went from idea to paying customers in 14 days — our process for rapid product development with Next.js, Stripe, and BunnyCDN."
+category: "PRODUCT"
+date: "2026-03-15"
+published: true
+---
+
+Two weeks. That's all the time we gave ourselves to go from a blank Next.js repo to a live product with real paying customers. Mocha started as a bet: could we build and ship a full SaaS — billing, auth, storage, the works — in a single sprint? The answer turned out to be yes, but only because we made a series of deliberate, sometimes uncomfortable trade-offs about what "done" actually means.
+
+The stack was not exotic. Next.js App Router, Stripe for billing, BunnyCDN for video delivery, and a Postgres database. We had used all of these before, which was the point. The fastest way to ship is to be ruthlessly boring with your technology choices. Every new library is a tax on velocity — you pay it upfront in integration time and again every time something breaks in an unexpected way.
+
+The hardest part wasn't the code. It was deciding what not to build. We cut the admin dashboard on day three and replaced it with a Notion document. We cut multi-workspace support and shipped with single-tenant accounts only. We cut email notifications and used a Slack webhook instead. Each of these felt like a mistake in the moment and turned out to be the right call. Customers don't buy the features you skipped — they buy the problem you solved.
+
+What surprised us most was how quickly the feedback loop compressed once we had a live URL to share. Within 48 hours of opening signups, we had a handful of users telling us exactly which parts of the product confused them. That information was worth more than any amount of internal review. If you're waiting until the product is "ready" to put it in front of people, you're optimizing for the wrong thing. Ship early, watch closely, and fix fast.
+
+## The technical decisions that actually mattered
+
+On the infrastructure side, the one decision that paid dividends immediately was centralizing video delivery through BunnyCDN from day one. We considered self-hosting uploads on S3, but the CDN edge network meant our first users — scattered across Germany and Austria — got fast playback without us doing anything clever. Good infrastructure is invisible, and invisible is what you want when you're moving fast.
+
+Authentication was solved in an afternoon with a well-maintained library. The time we saved there went directly into the parts of the product that are unique to what Mocha does. This is the compounding logic of good tooling: solve the commodity problems once, at acceptable quality, and reinvest the surplus into the things that actually differentiate you.
