@@ -1,15 +1,8 @@
-import { MobileNav } from "./mobile-nav";
+import { Navbar } from "./navbar";
 
 const VIDEO_URL = "https://intermac-files.b-cdn.net/video/intermac_hero_video_grokai.mp4";
 
 //   "https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260314_131748_f2ca2a28-fed7-44c8-b9a9-bd9acdd5ec31.mp4";
-
-const NAV_LINKS = [
-  { label: "Products", href: "#products" },
-  { label: "About", href: "#about" },
-  { label: "Journal", href: "/journal" },
-  { label: "Contact", href: "#contact" },
-];
 
 export function Hero() {
   return (
@@ -30,43 +23,7 @@ export function Hero() {
       <div className="absolute inset-0 bg-black/20 z-0" />
 
       {/* Navigation */}
-      <nav className="relative z-10 w-full">
-        <div className="max-w-7xl mx-auto px-8 py-6 flex items-center justify-between">
-          {/* Logo */}
-          <a
-            href="/"
-            className="text-3xl tracking-tight text-white select-none"
-            style={{ fontFamily: "'Instrument Serif', serif" }}
-          >
-            intermac.dev
-          </a>
-
-          {/* Desktop nav links */}
-          <ul className="hidden md:flex items-center gap-8">
-            {NAV_LINKS.map((link) => (
-              <li key={link.label}>
-                <a
-                  href={link.href}
-                  className="text-sm text-muted-foreground hover:text-foreground transition-colors"
-                >
-                  {link.label}
-                </a>
-              </li>
-            ))}
-          </ul>
-
-          {/* CTA + mobile toggle */}
-          <div className="flex items-center gap-4">
-            <a
-              href="#contact"
-              className="hidden md:inline-flex liquid-glass rounded-full px-6 py-2.5 text-sm text-white hover:opacity-90 transition-opacity"
-            >
-              Get in Touch
-            </a>
-            <MobileNav />
-          </div>
-        </div>
-      </nav>
+      <Navbar transparent />
 
       {/* Hero content */}
       <div className="relative z-10 flex flex-col items-center justify-center text-center flex-1 px-6 pt-16 pb-40">
