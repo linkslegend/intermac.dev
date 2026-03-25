@@ -16,6 +16,7 @@ export default function RootLayout({
   return (
     <html lang="de" className="h-full antialiased">
       <body className="min-h-full flex flex-col">{children}</body>
+      <script defer src="https://umami.intermac.dev/script.js" data-website-id="0409d360-d12e-4f6b-83eb-ea6df51c767c"></script>
     </html>
   );
 }
